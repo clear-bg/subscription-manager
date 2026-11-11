@@ -1,0 +1,55 @@
+# 自動チェック（設計書 9.8）。PR と main への反映のたびに実行する
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: 型チェック・lint・テスト
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: 型チェック
+        run: npm run typecheck
+      - name: lint
+        run: npm run lint
+      - name: テスト（Vitest）
+        run: npm test
+
+  database:
+    name: データベース（RLS のテスト・型の生成）
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          # package.json の supabase と同じ版にそろえる
+          version: 2.122.0
+      - name: データベースを起動（マイグレーションとテストデータを適用）
+        run: supabase db start
+      - name: RLS・制約のテスト（pgTAP）
+        run: supabase test db
+      - name: TypeScript の型がマイグレーションと一致しているか確認（設計書 9.5）
+        run: |
+          supabase gen types typescript --local > "$RUNNER_TEMP/database.types.ts"
+          if ! diff -q "$RUNNER_TEMP/database.types.ts" src/lib/supabase/database.types.ts; then
+            echo "::error::src/lib/supabase/database.types.ts が古いままです。npm run db:types を実行してコミットしてください"
+            exit 1
+          fi
