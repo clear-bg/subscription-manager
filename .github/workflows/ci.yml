@@ -46,7 +46,7 @@ jobs:
         run: supabase test db
       - name: TypeScript の型がマイグレーションと一致しているか確認（設計書 9.5）
         run: |
-          supabase gen types typescript --local > "$RUNNER_TEMP/database.types.ts"
+          supabase gen types typescript > "$RUNNER_TEMP/database.types.ts"
           if ! diff -q "$RUNNER_TEMP/database.types.ts" src/lib/supabase/database.types.ts; then
             echo "::error::src/lib/supabase/database.types.ts が古いままです。npm run db:types を実行してコミットしてください"
             exit 1
