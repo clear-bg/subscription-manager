@@ -1,0 +1,37 @@
+# 依存パッケージの更新を PR で知らせてもらう設定（設計書 7.6）
+# 脆弱性の修正（security updates）は、この設定とは別にすぐ PR が作られる
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    # 公開されたばかりの版は避け、7日たってから提案してもらう（壊れた版や乗っ取られた版を避けるため）
+    cooldown:
+      default-days: 7
+    # マイナー・パッチの更新は1つの PR にまとめる。メジャー更新は個別に確認する
+    # 注意：supabase を更新する PR では、.github/workflows/ci.yml の supabase/setup-cli の version も手で同じ版にそろえる
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
