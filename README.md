@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# サブスク・固定費管理
 
-## Getting Started
+契約中のサブスクリプションや固定費をまとめて管理し、「毎月いくら払っているか」を見えるようにする個人用の Web アプリです。請求日の前に Discord へ通知して、解約し忘れや無駄な支出を減らします。
 
-First, run the development server:
+仕様・データ設計・決定事項は [設計書（docs/design.md）](docs/design.md) にまとめています。
+
+## 主な機能（段階1）
+
+- Google ログイン（許可したメールアドレスだけ）と世帯の自動作成
+- サブスク・固定費の登録・編集・一覧、月額・年額の合計
+- 請求日のルール（毎月31日、2月29日の年額、毎週、3か月ごと など）
+- 請求日前の Discord 通知と、毎朝の定期実行（実行ログ付き）
+
+## 技術構成
+
+| 区分 | 使っているもの |
+|---|---|
+| 言語・フレームワーク | TypeScript（strict）、Next.js（App Router） |
+| データベース・認証 | Supabase（PostgreSQL、Auth、RLS） |
+| 見た目 | Tailwind CSS |
+| 入力チェック・テスト | Zod、Vitest、pgTAP（RLS のテスト） |
+| 本番環境 | Vercel（Vercel Cron で毎朝 8 時に定期実行）、Supabase |
+| CI | GitHub Actions（型チェック・lint・テスト・RLS のテスト・型の生成の確認） |
+
+## 開発の始め方
+
+必要なもの：Node.js 24、Docker（ローカルの Supabase を動かすため）
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+cp .env.example .env.local   # 値は npx supabase status で確認して入れる
+npx supabase start           # ローカルの Supabase を起動
+npm run db:reset             # マイグレーションとテストデータを適用
+npm run dev                  # http://127.0.0.1:3000 で開く（localhost ではなく 127.0.0.1）
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Google ログインを試すには、開発用の OAuth クライアントの ID とシークレットを `supabase/.env` に、ログインを許可する自分のメールアドレスを `supabase/seed.local.sql` に書きます。どちらも Git には入りません
+- 開発はテストデータ（`supabase/seed.sql`）で行います。実際の契約内容はリポジトリに入れません
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## よく使うコマンド
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| コマンド | 内容 |
+|---|---|
+| `npm run dev` | 開発サーバーを起動 |
+| `npm run typecheck` / `npm run lint` / `npm test` | 型チェック / lint / テスト |
+| `npm run db:reset` | ローカルのデータベースを作り直す |
+| `npm run db:test` | RLS などデータベースのテスト |
+| `npm run db:types` | テーブル定義から TypeScript の型を生成 |
 
-## Learn More
+## セキュリティについて
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 秘密情報（API キー、Webhook URL など）は環境変数で管理し、リポジトリには入れていません
+- すべてのテーブルで RLS（行レベルのアクセス制御）を有効にしています
+- 詳しくは設計書の「7. セキュリティ」を参照してください
