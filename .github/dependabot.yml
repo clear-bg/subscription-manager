@@ -24,6 +24,9 @@ updates:
       # eslint-config-next の中のプラグイン（react・jsx-a11y・import）が ESLint 10 に対応するまで見送る
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
+      # typescript-eslint（eslint-config-next の中）が TypeScript 7 に対応するまで見送る。6.x は受け取る
+      - dependency-name: "typescript"
+        versions: [">=7"]
     commit-message:
       prefix: chore
 
