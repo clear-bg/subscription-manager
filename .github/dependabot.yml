@@ -17,6 +17,13 @@ updates:
       npm-minor-patch:
         update-types: [minor, patch]
     open-pull-requests-limit: 5
+    ignore:
+      # 実行環境の Node.js（24）に合わせる。Node.js を上げるときにこの行を外す
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # eslint-config-next の中のプラグイン（react・jsx-a11y・import）が ESLint 10 に対応するまで見送る
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: chore
 
