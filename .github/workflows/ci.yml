@@ -38,10 +38,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      # version を書かないと、package-lock.json の supabase と同じ版が入る（手元の npx supabase とそろう）
       - uses: supabase/setup-cli@v3
-        with:
-          # package.json の supabase と同じ版にそろえる
-          version: 2.122.0
       - name: データベースを起動（マイグレーションとテストデータを適用）
         run: supabase db start
       - name: RLS・制約のテスト（pgTAP）
