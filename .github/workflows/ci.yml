@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -37,11 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
-        with:
-          # package.json の supabase と同じ版にそろえる
-          version: 2.122.0
+      - uses: actions/checkout@v7
+      # version を書かないと、package-lock.json の supabase と同じ版が入る（手元の npx supabase とそろう）
+      - uses: supabase/setup-cli@v3
       - name: データベースを起動（マイグレーションとテストデータを適用）
         run: supabase db start
       - name: RLS・制約のテスト（pgTAP）

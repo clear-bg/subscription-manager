@@ -13,7 +13,6 @@ updates:
     cooldown:
       default-days: 7
     # マイナー・パッチの更新は1つの PR にまとめる。メジャー更新は個別に確認する
-    # 注意：supabase を更新する PR では、.github/workflows/ci.yml の supabase/setup-cli の version も手で同じ版にそろえる
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
