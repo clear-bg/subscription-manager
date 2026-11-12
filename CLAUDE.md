@@ -42,6 +42,7 @@
 - サブスク請求の支出記録は `(subscription_id, billing_date)`（請求予定日）の一意制約で重複を防ぐ。`date` は実際の支払日で、後から修正されることがある。
 
 ### セキュリティ（設計書 7.2〜7.5）
+- リポジトリは公開。実際の契約内容・個人のメールアドレス・秘密情報をコミットしない。コミットは GitHub の noreply アドレスで行う（設計書 7.2）。
 - 秘密情報（service_role key、Discord Webhook URL、CRON_SECRET など）をコードに書かない。ログやエラーメッセージにも出さない。
 - Discord Webhook URL は環境変数で管理し、データベースには保存しない。
 - `NEXT_PUBLIC_` を付けてよいのは Supabase の URL と anon key だけ。
@@ -62,7 +63,7 @@
 - `.github/workflows/ci.yml`：PR と main への反映のたびに、型チェック・lint・Vitest・RLS のテスト・型の生成の確認を実行する（設計書 9.8）
 
 ## よく使うコマンド
-- `npm run dev`：開発サーバーを起動。ブラウザでは **http://127.0.0.1:3000** で開く（localhost だと Supabase のログインの戻り先と Cookie が合わない）
+- `npm run dev`：開発サーバーを起動。ブラウザでは **http://127.0.0.1:3000** で開く（localhost だと Supabase のログインの戻り先と Cookie が合わない）。`-H 127.0.0.1` で待ち受けるので、WSL で動かして Windows のブラウザから開くときもこのアドレスで届く
 - `npm run build`：本番用にビルド
 - `npm run lint`：ESLint でチェック
 - `npm run typecheck`：TypeScript の型チェック
