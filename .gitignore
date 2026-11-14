@@ -46,3 +46,6 @@ next-env.d.ts
 
 # 開発用の個人データ（自分のメールアドレスなど）を入れる seed
 /supabase/seed.local*.sql
+
+# 公開しないメモ・調査記録（ローカル専用）
+/docs/private/
